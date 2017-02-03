@@ -6,12 +6,12 @@ import com.epam.catalog.beans.News;
 
 public interface NewsDAO {
 	
-	ArrayList findAll() throws DAOException;
-	ArrayList findByTitle(String title) throws DAOException;
-	ArrayList findByAuthor(String author) throws DAOException;
-	ArrayList findByYear(int year) throws DAOException;
-	ArrayList findByText(String text) throws DAOException;
-	ArrayList findByGenre(String genre) throws DAOException;
+	ArrayList<? extends News> findAll() throws DAOException;
+	ArrayList<? extends News> findByTitle(String title) throws DAOException;
+	ArrayList<? extends News> findByAuthor(String author) throws DAOException;
+	ArrayList<? extends News> findByYear(int year) throws DAOException;
+	ArrayList<? extends News> findByText(String text) throws DAOException;
+	ArrayList<? extends News> findByGenre(String genre) throws DAOException;
 	void addNews(News news) throws DAOException;
 	
 }

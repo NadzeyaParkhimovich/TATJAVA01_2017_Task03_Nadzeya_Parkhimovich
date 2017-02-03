@@ -16,14 +16,15 @@ public class FilmDAO implements NewsDAO {
 	ResultSet result;
 	
 	public ArrayList<Film> findAll() throws DAOException {
-		result = db.getDBData("SELECT * FROM `film`");
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film`");
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -31,14 +32,15 @@ public class FilmDAO implements NewsDAO {
 	}
 	
 	public ArrayList<Film> findByTitle(String title) throws DAOException {
-		result = db.getDBData("SELECT * FROM `film` WHERE `title`=\"" + title +"\"");
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film` WHERE `title`=\"" + title +"\"");
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -46,14 +48,15 @@ public class FilmDAO implements NewsDAO {
 	}
 
 	public ArrayList<Film> findByAuthor(String author) throws DAOException {
-		result = db.getDBData("SELECT * FROM `film` WHERE `author`=\"" + author + "\"");
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film` WHERE `author`=\"" + author + "\"");
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -61,14 +64,15 @@ public class FilmDAO implements NewsDAO {
 	}
 	
 	public ArrayList<Film> findByYear(int year) throws DAOException {
-		result = db.getDBData("SELECT * FROM `film` WHERE `year`=" + year);
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film` WHERE `year`=" + year);
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -76,14 +80,15 @@ public class FilmDAO implements NewsDAO {
 	}
 	
 	public ArrayList<Film> findByText(String text) throws DAOException {
-		result = db.getDBData("SELECT * FROM `film` WHERE `text`=\"" + text + "\"");
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film` WHERE `text`=\"" + text + "\"");
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -91,14 +96,15 @@ public class FilmDAO implements NewsDAO {
 	}
 	
 	public ArrayList<Film> findByGenre(String genre) throws DAOException {
-		result = db.getDBData("SELECT * FROM `film` WHERE `genre`=\"" + genre + "\"");
+		films.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `film` WHERE `genre`=\"" + genre + "\"");
 			while (result.next()) {
 				Film film = new Film(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),FilmGenre.valueOf(result.getString("genre")));
 				films.add(film);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -111,8 +117,12 @@ public class FilmDAO implements NewsDAO {
 			String query = "INSERT INTO `film` (`title`,`author`,`year`,`text`,`genre`) "
 					+ "VALUES (\"" + film.getTitle() + "\",\"" + film.getAuthor() + "\","
 					+ film.getYear() + ",\"" + film.getText() + "\",\"" + film.getGenre() + "\")";
-			if(db.changeDBData(query) != 1) {
-				throw new DAOException("Problem in insert file");
+			try {
+				if(db.changeDBData(query) != 1) {
+					throw new DAOException("Problem in insert file");
+				}
+			} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				throw new DAOException(e);
 			}
 		} else {
 			throw new DAOException("Incorrect type of news");

@@ -16,14 +16,15 @@ public class BookDAO implements NewsDAO{
 	ResultSet result;
 	
 	public ArrayList<Book> findAll() throws DAOException {
-		result = db.getDBData("SELECT * FROM `book`");
+		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `book`");
 			while (result.next()) {
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -31,14 +32,15 @@ public class BookDAO implements NewsDAO{
 	}
 	
 	public ArrayList<Book> findByTitle(String title) throws DAOException {
-		result = db.getDBData("SELECT * FROM `book` WHERE `title`=\"" + title +"\"");
+		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `book` WHERE `title`=\"" + title +"\"");
 			while (result.next()) {
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -46,14 +48,15 @@ public class BookDAO implements NewsDAO{
 	}
 
 	public ArrayList<Book> findByAuthor(String author) throws DAOException {
-		result = db.getDBData("SELECT * FROM `book` WHERE `author`=\"" + author + "\"");
+		books.clear();
 		try {
 			while (result.next()) {
+				result = db.getDBData("SELECT * FROM `book` WHERE `author`=\"" + author + "\"");
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -61,14 +64,15 @@ public class BookDAO implements NewsDAO{
 	}
 	
 	public ArrayList<Book> findByYear(int year) throws DAOException {
-		result = db.getDBData("SELECT * FROM `book` WHERE `year`=" + year);
+		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `book` WHERE `year`=" + year);
 			while (result.next()) {
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -76,14 +80,15 @@ public class BookDAO implements NewsDAO{
 	}
 	
 	public ArrayList<Book> findByText(String text) throws DAOException {
-		result = db.getDBData("SELECT * FROM `Book` WHERE `text`=\"" + text + "\"");
+		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `Book` WHERE `text`=\"" + text + "\"");
 			while (result.next()) {
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -91,14 +96,15 @@ public class BookDAO implements NewsDAO{
 	}
 	
 	public ArrayList<Book> findByGenre(String genre) throws DAOException {
-		result = db.getDBData("SELECT * FROM `Book` WHERE `genre`=\"" + genre + "\"");
+		books.clear();
 		try {
 			while (result.next()) {
+				result = db.getDBData("SELECT * FROM `Book` WHERE `genre`=\"" + genre + "\"");
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -106,14 +112,15 @@ public class BookDAO implements NewsDAO{
 	}
 	
 	public ArrayList<Book> findByPages(int numberOfPages) throws DAOException {
-		result = db.getDBData("SELECT * FROM `Book` WHERE `numberOfPages`=" + numberOfPages);
+		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `Book` WHERE `numberOfPages`=" + numberOfPages);
 			while (result.next()) {
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new DAOException(e);
 		}
 		
@@ -123,11 +130,15 @@ public class BookDAO implements NewsDAO{
 	public void addNews(News news) throws DAOException {
 		if (news instanceof Book) {
 			Book book = (Book)news;
-			String query = "INSERT INTO `film` (`title`,`author`,`year`,`text`,`genre`,`numberOfPages`) "
+			String query = "INSERT INTO `book` (`title`,`author`,`year`,`text`,`genre`,`numberOfPages`) "
 					+ "VALUES (\"" + book.getTitle() + "\",\"" + book.getAuthor() + "\","
 					+ book.getYear() + ",\"" + book.getText() + "\",\"" + book.getGenre() + "\"," + book.getNumberOfPages() + ")";
-			if(db.changeDBData(query) != 1) {
-				throw new DAOException("Problem in insert file");
+			try {
+				if(db.changeDBData(query) != 1) {
+					throw new DAOException("Problem in insert file");
+				}
+			} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				throw new DAOException(e);
 			}
 		} else {
 			throw new DAOException("Incorrect type of news");
