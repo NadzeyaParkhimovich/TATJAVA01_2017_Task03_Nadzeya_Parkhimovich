@@ -3,6 +3,9 @@ package com.epam.catalog.service.impl;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.epam.catalog.beans.Book;
 import com.epam.catalog.beans.BookGenre;
 import com.epam.catalog.beans.Disk;
@@ -36,28 +39,37 @@ public class ServiceImpl implements Service{
 
 	@Override
 	public ArrayList<? extends News> findByTitle(String title) throws ServiceExeption {
-		try {
-			return dao.findByTitle(title);
-		} catch (DAOException e) {
-			throw new ServiceExeption(e);
+		if(stringChecker(title)) {
+			try {
+				return dao.findByTitle(title);
+			} catch (DAOException e) {
+				throw new ServiceExeption(e);
+			}
+		} else {
+			throw new ServiceExeption("Incorrect title");
 		}
+		
 	}
 
 	@Override
 	public ArrayList<? extends News> findByAuthor(String author) throws ServiceExeption {
-		try {
-			return dao.findByAuthor(author);
-		} catch (DAOException e) {
-			throw new ServiceExeption(e);
+			if(stringChecker(author)) {
+			try {
+				return dao.findByAuthor(author);
+			} catch (DAOException e) {
+				throw new ServiceExeption(e);
+			}
+		} else {
+			throw new ServiceExeption("Incorrect author");
 		}
+		
 	}
 
 	@Override
 	public ArrayList<? extends News> findByYear(String year) throws ServiceExeption {
 		try {
 			int intYear = Integer.parseInt(year);
-		    Calendar c = new GregorianCalendar();
-			if (intYear > 0 && intYear <= c.get(Calendar.YEAR)) {
+			if (yearChecker(intYear)) {
 				return dao.findByYear(intYear);
 			} else {
 				throw new ServiceExeption("Incorrect year!");
@@ -117,10 +129,19 @@ public class ServiceImpl implements Service{
 			}
 			try {
 				int year = Integer.parseInt(parts[2]);
-				Calendar c = new GregorianCalendar();
-				if (year > 0 && year <= c.get(Calendar.YEAR)) {
-					Film film = new Film(parts[0], parts[1], year, parts[3], FilmGenre.valueOf(parts[4]));
-					dao.addNews(film);
+				if (yearChecker(year)) {
+					if(stringChecker(parts[0])) {
+						if (stringChecker(parts[1])) {
+							Film film = new Film(parts[0], parts[1], year, parts[3], FilmGenre.valueOf(parts[4]));
+							dao.addNews(film);
+						} else {
+							throw new ServiceExeption("Incorrect author!");
+						}
+						
+					} else {
+						throw new ServiceExeption("Incorrect title!");
+					}
+					
 				} else {
 					throw new ServiceExeption("Incorrect year!");
 				}
@@ -138,11 +159,22 @@ public class ServiceImpl implements Service{
 			}
 			try {
 				int year = Integer.parseInt(parts[2]);
-				Calendar c = new GregorianCalendar();
-				if (year > 0 && year <= c.get(Calendar.YEAR)) {
+				if (yearChecker(year)) {
 					int numberOfPages = Integer.parseInt(parts[5]);
-					Book book = new Book(parts[0], parts[1], year, parts[3], BookGenre.valueOf(parts[4]), numberOfPages);
-					dao.addNews(book);
+					if (numberOfPages > 0) {
+						if (stringChecker(parts[0])) {
+							if (stringChecker(parts[1])) {
+								Book book = new Book(parts[0], parts[1], year, parts[3], BookGenre.valueOf(parts[4]), numberOfPages);
+								dao.addNews(book);
+							} else {
+								throw new ServiceExeption("Incorrect author!");
+							}
+						} else {
+							throw new ServiceExeption("Incorrect title!");
+						}
+					} else {
+						throw new ServiceExeption("Incorrect numberOfPages!");
+					}
 				} else {
 					throw new ServiceExeption("Incorrect year!");
 				}
@@ -160,10 +192,17 @@ public class ServiceImpl implements Service{
 			}
 			try {
 				int year = Integer.parseInt(parts[2]);
-				Calendar c = new GregorianCalendar();
-				if (year > 0 && year <= c.get(Calendar.YEAR)) {
-					Disk disk = new Disk(parts[0], parts[1], year, parts[3], MusicGenre.valueOf(parts[4]));
-					dao.addNews(disk);
+				if (yearChecker(year)) {
+					if (stringChecker(parts[0])) {
+						if (stringChecker(parts[1])) {
+							Disk disk = new Disk(parts[0], parts[1], year, parts[3], MusicGenre.valueOf(parts[4]));
+							dao.addNews(disk);
+						} else {
+							throw new ServiceExeption("Incorrect author!");
+						}
+					} else {
+						throw new ServiceExeption("Incorrect title!");
+					}
 				}else {
 					throw new ServiceExeption("Incorrect year!");
 				}
@@ -175,4 +214,17 @@ public class ServiceImpl implements Service{
 		
 	}
 	
+	private boolean stringChecker(String str) {
+		Matcher matcher = Pattern.compile("[\\wà-ÿ¸À-ß¨-]{0,45}").matcher(str);
+		return matcher.matches();
+	}
+	
+	private boolean yearChecker(int year) {
+		Calendar c = new GregorianCalendar();
+		if (year > 0 && year <= c.get(Calendar.YEAR)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

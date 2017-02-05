@@ -12,6 +12,9 @@ public class DBWorker {
 	private Integer affected_rows = 0;
 	private static DBWorker instance = null;
 	
+	Statement statement;
+	Connection connect;
+	
 	public static DBWorker getInstance()
 	{
 		if (instance == null)
@@ -29,8 +32,6 @@ public class DBWorker {
 	
 	public ResultSet getDBData(String query) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException
 	{
-		Statement statement;
-		Connection connect;
 		
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		connect = DriverManager.getConnection("jdbc:mysql://localhost/catalog?user=root&password=admin&useUnicode=true&characterEncoding=UTF-8&characterSetResults=utf8&connectionCollation=utf8_general_ci");
@@ -42,8 +43,7 @@ public class DBWorker {
 	
 	public Integer changeDBData(String query) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException
 	{
-		Statement statement;
-		Connection connect;
+		
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		connect = DriverManager.getConnection("jdbc:mysql://localhost/catalog?user=root&password=admin&useUnicode=true&characterEncoding=UTF-8&characterSetResults=utf8&connectionCollation=utf8_general_ci");
 		statement = connect.createStatement();
@@ -57,6 +57,16 @@ public class DBWorker {
 	public Integer getAffectedRowsCount()
 	{
 		return this.affected_rows;
+	}
+	
+	public void closeConnection() throws SQLException {	
+			
+		if (statement != null) {
+			statement.close();
+		}
+		if (connect != null) {
+			connect.close();
+		}
 	}
 
 

@@ -9,7 +9,7 @@ public class View {
 		Controller controller = new Controller();
 		//Здесь должен быть вью, но пока его нет
 		//Добавление новости по диску
-		String request = "add_news@disk@One by One@HIHOP@2006@la la la@ROCK";
+		String request = "add_news@disk@Vovin2@Therion@1998@hard@METAL";
 		System.out.println(controller.executeTask(request));
 		
 		//Найти все по книгам

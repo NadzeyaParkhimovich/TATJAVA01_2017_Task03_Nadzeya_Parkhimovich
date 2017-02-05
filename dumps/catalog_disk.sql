@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `catalog` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `catalog`;
 -- MySQL dump 10.13  Distrib 5.7.12, for Win64 (x86_64)
 --
 -- Host: localhost    Database: catalog
 -- ------------------------------------------------------
--- Server version	5.7.17-log
+-- Server version	5.7.16-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -18,32 +16,31 @@ USE `catalog`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `book`
+-- Table structure for table `disk`
 --
 
-DROP TABLE IF EXISTS `book`;
+DROP TABLE IF EXISTS `disk`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `book` (
+CREATE TABLE `disk` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(45) NOT NULL,
   `author` varchar(45) NOT NULL,
   `year` int(11) NOT NULL,
   `text` longtext NOT NULL,
   `genre` varchar(45) NOT NULL,
-  `numberOfPages` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `book`
+-- Dumping data for table `disk`
 --
 
-LOCK TABLES `book` WRITE;
-/*!40000 ALTER TABLE `book` DISABLE KEYS */;
-INSERT INTO `book` VALUES (1,'Sense and Sensibility','Ostin',1811,'Best book.........','NOVEL',550),(2,'Pride and Prejudice','Ostin',1813,'Read it!!!','NOVEL',580),(3,'Labirint otrazheniy','Lukyanenko',2005,'Best fantazy','FANTAZY',800),(4,'One by One','HIHOP',2006,'la la la','NOVEL',515);
-/*!40000 ALTER TABLE `book` ENABLE KEYS */;
+LOCK TABLES `disk` WRITE;
+/*!40000 ALTER TABLE `disk` DISABLE KEYS */;
+INSERT INTO `disk` VALUES (1,'Sehnsucht','Rammstein',1997,'Listen','METAL'),(2,'Seventh Son of a Seventh Son','Iron Maiden',1988,'Listen it!!!','ROCK'),(3,'One by One','HIHOP',2006,'la la la','ROCK'),(4,'One by One','HIHOP',2006,'la la la','ROCK'),(5,'Luna','Therion',2001,'music for relax','METAL'),(6,'B2for2','Rage',2000,'hard','METAL'),(7,'Vovin2','Therion',1998,'hard','METAL');
+/*!40000 ALTER TABLE `disk` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-02-03 17:50:59
+-- Dump completed on 2017-02-05 12:00:19

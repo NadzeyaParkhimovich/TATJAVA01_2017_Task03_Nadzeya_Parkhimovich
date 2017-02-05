@@ -50,8 +50,8 @@ public class BookDAO implements NewsDAO{
 	public ArrayList<Book> findByAuthor(String author) throws DAOException {
 		books.clear();
 		try {
+			result = db.getDBData("SELECT * FROM `book` WHERE `author`=\"" + author + "\"");
 			while (result.next()) {
-				result = db.getDBData("SELECT * FROM `book` WHERE `author`=\"" + author + "\"");
 				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
 						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
 				books.add(book);
