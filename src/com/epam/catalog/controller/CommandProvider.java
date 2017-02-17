@@ -3,7 +3,11 @@ package com.epam.catalog.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.epam.catalog.controller.impl.AddNews;
+import com.epam.catalog.controller.impl.Exit;
 import com.epam.catalog.controller.impl.FindAll;
 import com.epam.catalog.controller.impl.FindByAuthor;
 import com.epam.catalog.controller.impl.FindByGenre;
@@ -13,6 +17,8 @@ import com.epam.catalog.controller.impl.FindByYear;
 import com.epam.catalog.controller.impl.WrongRequest;
 
 final class CommandProvider {   
+	
+	private final static Logger LOG = LogManager.getRootLogger();
 	
 	private final Map<CommandName, Command> repository = new HashMap<>();    
 	
@@ -24,6 +30,7 @@ final class CommandProvider {
 		repository.put(CommandName.FIND_BY_TEXT, new FindByText());
 		repository.put(CommandName.FIND_BY_GENRE, new FindByGenre());
 		repository.put(CommandName.ADD_NEWS, new AddNews());
+		repository.put(CommandName.EXIT, new Exit());
 		repository.put(CommandName.WRONG_REQUEST, new WrongRequest());   
 	}
 	
@@ -35,8 +42,8 @@ final class CommandProvider {
 				command = repository.get(commandName);
 				
 		 }catch(IllegalArgumentException | NullPointerException e){    
-			 
-		 		command = repository.get(CommandName.WRONG_REQUEST);
+			LOG.info(e);
+		 	command = repository.get(CommandName.WRONG_REQUEST);
 		 }
 		return command;
 	}

@@ -8,5 +8,6 @@ public enum CommandName {
 	FIND_BY_TEXT,
 	FIND_BY_GENRE,
 	ADD_NEWS,
+	EXIT,
 	WRONG_REQUEST;
 }

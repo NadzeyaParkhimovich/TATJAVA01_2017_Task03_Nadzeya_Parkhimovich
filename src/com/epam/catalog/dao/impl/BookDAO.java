@@ -1,149 +1,127 @@
 package com.epam.catalog.dao.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import com.epam.catalog.beans.Book;
-import com.epam.catalog.beans.BookGenre;
-import com.epam.catalog.beans.News;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.epam.catalog.bean.Book;
+import com.epam.catalog.bean.News;
+import com.epam.catalog.bean.genre.BookGenre;
 import com.epam.catalog.dao.DAOException;
 import com.epam.catalog.dao.NewsDAO;
 
 public class BookDAO implements NewsDAO{
-		
-	DBWorker db = DBWorker.getInstance();
-	ArrayList<Book> books = new ArrayList<Book>();
-	ResultSet result;
 	
-	public ArrayList<Book> findAll() throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `book`");
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
+	private static final Logger LOG = LogManager.getRootLogger();
+	private static final String BOOK_FILE ="D:/Projects/Catalog/Book.txt";
 	
-	public ArrayList<Book> findByTitle(String title) throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `book` WHERE `title`=\"" + title +"\"");
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
+	@Override
+	public ArrayList<? extends News> findAll() throws DAOException {
+		FileReader reader = null;
+        BufferedReader br = null;
+        ArrayList<Book> books = new ArrayList<Book>();
+        
+        try {
+			reader = new FileReader(BOOK_FILE);
+			br = new BufferedReader(reader);
+			String s;
+			String [] parts;
+			Book book;
+			while ((s = br.readLine()) != null) {
+				parts = s.split("@");
+				book = new Book(parts[0],parts[1],Integer.parseInt(parts[2]),parts[3],BookGenre.valueOf(parts[4]),Integer.parseInt(parts[5]));
 				books.add(book);
+				
 			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
 			throw new DAOException(e);
+		} finally {
+			try {
+				reader.close();
+				br.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
 		}
-		
 		return books;
 	}
 
-	public ArrayList<Book> findByAuthor(String author) throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `book` WHERE `author`=\"" + author + "\"");
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
-	
-	public ArrayList<Book> findByYear(int year) throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `book` WHERE `year`=" + year);
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
-	
-	public ArrayList<Book> findByText(String text) throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `Book` WHERE `text`=\"" + text + "\"");
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
-	
-	public ArrayList<Book> findByGenre(String genre) throws DAOException {
-		books.clear();
-		try {
-			while (result.next()) {
-				result = db.getDBData("SELECT * FROM `Book` WHERE `genre`=\"" + genre + "\"");
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
-	
-	public ArrayList<Book> findByPages(int numberOfPages) throws DAOException {
-		books.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `Book` WHERE `numberOfPages`=" + numberOfPages);
-			while (result.next()) {
-				Book book = new Book(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),BookGenre.valueOf(result.getString("genre")),result.getInt("numberOfPages"));
-				books.add(book);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return books;
-	}
-	
-	public void addNews(News news) throws DAOException {
-		if (news instanceof Book) {
-			Book book = (Book)news;
-			String query = "INSERT INTO `book` (`title`,`author`,`year`,`text`,`genre`,`numberOfPages`) "
-					+ "VALUES (\"" + book.getTitle() + "\",\"" + book.getAuthor() + "\","
-					+ book.getYear() + ",\"" + book.getText() + "\",\"" + book.getGenre() + "\"," + book.getNumberOfPages() + ")";
-			try {
-				if(db.changeDBData(query) != 1) {
-					throw new DAOException("Problem in insert file");
+	@Override
+	public ArrayList<? extends News> findBy(String type, String value) throws DAOException {
+		FileReader reader = null;
+        BufferedReader br = null;
+        ArrayList<Book> books = new ArrayList<Book>();
+        
+        try {
+        	reader = new FileReader(BOOK_FILE);
+			br = new BufferedReader(reader);
+			String s;
+			String [] parts;
+			Book book;
+			int i = Type.numberOfEnum(type);
+			while ((s = br.readLine()) != null) {
+				parts = s.split("@");
+				if (parts[i].equalsIgnoreCase(value)) {
+					book = new Book(parts[0],parts[1],Integer.parseInt(parts[2]),parts[3],BookGenre.valueOf(parts[4]),Integer.parseInt(parts[5]));
+					books.add(book);
 				}
-			} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				throw new DAOException(e);
 			}
-		} else {
+			
+        }catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
+			throw new DAOException(e);
+		} finally {
+			try {
+				reader.close();
+				br.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
+		}
+		return books;
+	}
+
+	@Override
+	public void addNews(News news) throws DAOException {
+		
+		if (!(news instanceof Book)) {
+			LOG.error("Incorrect type of news");
 			throw new DAOException("Incorrect type of news");
 		}
 		
+		Book book = (Book) news;
+		FileWriter writer = null;
+		
+        try {
+            writer = new FileWriter(BOOK_FILE, true);
+            writer.write(book.getTitle()+"@"+book.getAuthor()+"@"+book.getYear()+"@"+book.getText()+"@"+book.getGenre()+"@"+book.getNumberOfPages());
+            writer.append("\r\n");
+        } catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
+			throw new DAOException(e);
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
+		}
 	}
 		
 }

@@ -7,11 +7,20 @@ public final class Controller {
 	
 	public String executeTask(String request){   
 		String commandName;   
-		Command executionCommand;      
-		commandName = request.substring(0, request.indexOf(paramDelimeter));   
-		executionCommand = provider.getCommand(commandName);      
-		String response;   
-		response = executionCommand.execute(request);      
+		Command executionCommand; 
+		String response; 
+		
+		if(request.indexOf(paramDelimeter) != -1){
+			
+			commandName = request.substring(0, request.indexOf(paramDelimeter));
+			executionCommand = provider.getCommand(commandName);  
+			response = executionCommand.execute(request);
+			
+		} else {
+			
+			executionCommand = provider.getCommand(request);
+			response = executionCommand.execute(request);
+		}
 		return response;
 	} 
 }

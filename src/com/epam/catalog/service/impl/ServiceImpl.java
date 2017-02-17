@@ -6,13 +6,16 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.epam.catalog.beans.Book;
-import com.epam.catalog.beans.BookGenre;
-import com.epam.catalog.beans.Disk;
-import com.epam.catalog.beans.Film;
-import com.epam.catalog.beans.FilmGenre;
-import com.epam.catalog.beans.MusicGenre;
-import com.epam.catalog.beans.News;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.epam.catalog.bean.Book;
+import com.epam.catalog.bean.Disk;
+import com.epam.catalog.bean.Film;
+import com.epam.catalog.bean.News;
+import com.epam.catalog.bean.genre.BookGenre;
+import com.epam.catalog.bean.genre.FilmGenre;
+import com.epam.catalog.bean.genre.MusicGenre;
 import com.epam.catalog.dao.DAOException;
 import com.epam.catalog.dao.NewsDAO;
 import com.epam.catalog.service.Service;
@@ -20,8 +23,11 @@ import com.epam.catalog.service.ServiceExeption;
 
 public class ServiceImpl implements Service{
 
+	private final static Logger LOG = LogManager.getRootLogger();
+	
+	private final static String  STRING_VERIFICATION = "[\\s\\w–∞-—è—ë–ê-–Ø–Å-]{0,45}";
 	private NewsDAO dao;
-	String type;
+	private String type;
 	
 	public ServiceImpl(NewsDAO dao, String type) {
 		this.dao = dao;
@@ -33,6 +39,7 @@ public class ServiceImpl implements Service{
 		try {
 			return dao.findAll();
 		} catch (DAOException e) {
+			LOG.error(e);
 			throw new ServiceExeption(e);
 		}
 	}
@@ -41,11 +48,13 @@ public class ServiceImpl implements Service{
 	public ArrayList<? extends News> findByTitle(String title) throws ServiceExeption {
 		if(stringChecker(title)) {
 			try {
-				return dao.findByTitle(title);
+				return dao.findBy("title", title);
 			} catch (DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 		} else {
+			LOG.warn("Incorrect title");
 			throw new ServiceExeption("Incorrect title");
 		}
 		
@@ -55,11 +64,13 @@ public class ServiceImpl implements Service{
 	public ArrayList<? extends News> findByAuthor(String author) throws ServiceExeption {
 			if(stringChecker(author)) {
 			try {
-				return dao.findByAuthor(author);
+				return dao.findBy("author", author);
 			} catch (DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 		} else {
+			LOG.warn("Incorrect author");
 			throw new ServiceExeption("Incorrect author");
 		}
 		
@@ -68,13 +79,14 @@ public class ServiceImpl implements Service{
 	@Override
 	public ArrayList<? extends News> findByYear(String year) throws ServiceExeption {
 		try {
-			int intYear = Integer.parseInt(year);
-			if (yearChecker(intYear)) {
-				return dao.findByYear(intYear);
+			if (yearChecker(year)) {
+				return dao.findBy("year", year);
 			} else {
+				LOG.warn("Incorrect year!");
 				throw new ServiceExeption("Incorrect year!");
 			}
 		} catch (DAOException | NumberFormatException e) {
+			LOG.error(e);
 			throw new ServiceExeption(e);
 		}
 	}
@@ -82,8 +94,9 @@ public class ServiceImpl implements Service{
 	@Override
 	public ArrayList<? extends News> findByText(String text) throws ServiceExeption {
 		try {
-			return dao.findByText(text);
+			return dao.findBy("text", text);
 		} catch (DAOException e) {
+			LOG.error(e);
 			throw new ServiceExeption(e);
 		}
 	}
@@ -92,28 +105,32 @@ public class ServiceImpl implements Service{
 	public ArrayList<? extends News> findByGenre(String genre) throws ServiceExeption {
 		if (type.equals("film")) {
 			try {
-				FilmGenre.valueOf(genre);
-				return dao.findByGenre(genre);
+				FilmGenre.valueOf(genre.toUpperCase());
+				return dao.findBy("genre", genre);
 			} catch (IllegalArgumentException | DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 		} else {
 			if (type.equals("book")) {
 				try {
-					BookGenre.valueOf(genre);
-					return dao.findByGenre(genre);
+					BookGenre.valueOf(genre.toUpperCase());
+					return dao.findBy("genre", genre);
 				} catch (IllegalArgumentException | DAOException e) {
+					LOG.error(e);
 					throw new ServiceExeption(e);
 				}
 			} else {
 				if (type.equals("disk")) {
 					try {
-						MusicGenre.valueOf(genre);
-						return dao.findByGenre(genre);
+						MusicGenre.valueOf(genre.toUpperCase());
+						return dao.findBy("genre", genre);
 					} catch (IllegalArgumentException | DAOException e) {
+						LOG.error(e);
 						throw new ServiceExeption(e);
 					}
 				} else {
+					LOG.error("Illegal type of product");
 					throw new ServiceExeption("Illegal type of product");
 				}
 			}
@@ -129,24 +146,28 @@ public class ServiceImpl implements Service{
 			}
 			try {
 				int year = Integer.parseInt(parts[2]);
-				if (yearChecker(year)) {
+				if (yearChecker(parts[2])) {
 					if(stringChecker(parts[0])) {
 						if (stringChecker(parts[1])) {
 							Film film = new Film(parts[0], parts[1], year, parts[3], FilmGenre.valueOf(parts[4]));
 							dao.addNews(film);
 						} else {
+							LOG.warn("Incorrect author!");
 							throw new ServiceExeption("Incorrect author!");
 						}
 						
 					} else {
+						LOG.warn("Incorrect title!");
 						throw new ServiceExeption("Incorrect title!");
 					}
 					
 				} else {
+					LOG.warn("Incorrect year!");
 					throw new ServiceExeption("Incorrect year!");
 				}
 				
 			} catch (IllegalArgumentException | DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 			
@@ -158,28 +179,32 @@ public class ServiceImpl implements Service{
 				throw new ServiceExeption("Illegel string command");
 			}
 			try {
-				int year = Integer.parseInt(parts[2]);
-				if (yearChecker(year)) {
+				if (yearChecker(parts[2])) {
 					int numberOfPages = Integer.parseInt(parts[5]);
 					if (numberOfPages > 0) {
 						if (stringChecker(parts[0])) {
 							if (stringChecker(parts[1])) {
-								Book book = new Book(parts[0], parts[1], year, parts[3], BookGenre.valueOf(parts[4]), numberOfPages);
+								Book book = new Book(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], BookGenre.valueOf(parts[4]), numberOfPages);
 								dao.addNews(book);
-							} else {
+							} else {							
+								LOG.warn("Incorrect author!");
 								throw new ServiceExeption("Incorrect author!");
 							}
 						} else {
+							LOG.warn("Incorrect title!");
 							throw new ServiceExeption("Incorrect title!");
 						}
 					} else {
+						LOG.warn("Incorrect numberOfPages!");
 						throw new ServiceExeption("Incorrect numberOfPages!");
 					}
 				} else {
+					LOG.warn("Incorrect year!");
 					throw new ServiceExeption("Incorrect year!");
 				}
 				
 			} catch (IllegalArgumentException | DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 			
@@ -191,37 +216,41 @@ public class ServiceImpl implements Service{
 				throw new ServiceExeption("Illegel string command");
 			}
 			try {
-				int year = Integer.parseInt(parts[2]);
-				if (yearChecker(year)) {
+				if (yearChecker(parts[2])) {
 					if (stringChecker(parts[0])) {
 						if (stringChecker(parts[1])) {
-							Disk disk = new Disk(parts[0], parts[1], year, parts[3], MusicGenre.valueOf(parts[4]));
+							Disk disk = new Disk(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], MusicGenre.valueOf(parts[4]));
 							dao.addNews(disk);
 						} else {
+							LOG.warn("Incorrect author!");
 							throw new ServiceExeption("Incorrect author!");
 						}
 					} else {
+						LOG.warn("Incorrect title!");
 						throw new ServiceExeption("Incorrect title!");
 					}
 				}else {
+					LOG.warn("Incorrect year!");
 					throw new ServiceExeption("Incorrect year!");
 				}
 			} catch (IllegalArgumentException | DAOException e) {
+				LOG.error(e);
 				throw new ServiceExeption(e);
 			}
 			
 		}
 		
 	}
-	
+		
 	private boolean stringChecker(String str) {
-		Matcher matcher = Pattern.compile("[\\w‡-ˇ∏¿-ﬂ®-]{0,45}").matcher(str);
+		Matcher matcher = Pattern.compile(STRING_VERIFICATION).matcher(str);
 		return matcher.matches();
 	}
 	
-	private boolean yearChecker(int year) {
+	private boolean yearChecker(String year) {
+		int intYear = Integer.parseInt(year);
 		Calendar c = new GregorianCalendar();
-		if (year > 0 && year <= c.get(Calendar.YEAR)) {
+		if (intYear > 0 && intYear <= c.get(Calendar.YEAR)) {
 			return true;
 		} else {
 			return false;

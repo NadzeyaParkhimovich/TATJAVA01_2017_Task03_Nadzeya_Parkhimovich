@@ -1,10 +1,9 @@
 package com.epam.catalog.controller.impl;
 
-import java.util.ArrayList;
 
-import com.epam.catalog.beans.Book;
-import com.epam.catalog.beans.Disk;
-import com.epam.catalog.beans.Film;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.epam.catalog.controller.Command;
 import com.epam.catalog.service.Service;
 import com.epam.catalog.service.ServiceExeption;
@@ -12,6 +11,8 @@ import com.epam.catalog.service.ServiceFactory;
 
 public class FindByText implements Command{
 
+	private final static Logger LOG = LogManager.getRootLogger();
+	
 	@Override
 	public String execute(String request) {
 		
@@ -24,11 +25,9 @@ public class FindByText implements Command{
 				
 				service = sfactory.getFilmService();
 				try {
-					response = "Text: " + parts[2] + "\nTitle Author Year Text Genre\n";
-					for(Film film : (ArrayList<Film>)service.findByText(parts[2])) {
-						response += film.getTitle() + " " + film.getAuthor() + " " + film.getYear() + " " + film.getText() + " " + film.getGenre() + "\n";
-					}
+					response = Util.responseCreator(service.findByText(parts[2]), "Text", parts[2]);
 				} catch (ServiceExeption e) {
+					LOG.error(e);
 					response = "Sorry, we have problems in finding films by Text";
 				}
 			} else {
@@ -36,11 +35,9 @@ public class FindByText implements Command{
 					
 					service = sfactory.getBookSerice();
 					try {
-						response = "Text: " + parts[2] + "\nTitle Author Year Text Genre NumberOfPages\n";
-						for(Book book : (ArrayList<Book>)service.findByText(parts[2])) {
-							response += book.getTitle() + " " + book.getAuthor() + " " + book.getYear() + " " + book.getText() + " " + book.getGenre() + " " + book.getNumberOfPages() + "\n";
-						}
+						response = Util.responseCreator(service.findByText(parts[2]), "Text", parts[2]);
 					} catch (ServiceExeption e) {
+						LOG.error(e);
 						response = "Sorry, we have problems in finding books by Text";
 					}
 				} else {
@@ -48,21 +45,21 @@ public class FindByText implements Command{
 					
 					service = sfactory.getDiskService();
 					try {
-						response = "Text: " + parts[2] + "\nTitle Author Year Text Genre\n";
-						for(Disk disk : (ArrayList<Disk>)service.findByText(parts[2])) {
-							response += disk.getTitle() + " " + disk.getAuthor() + " " + disk.getYear() + " " + disk.getText() + " " + disk.getGenre() + "\n";
-						}
+						response = Util.responseCreator(service.findByText(parts[2]), "Text", parts[2]);
 					} catch (ServiceExeption e) {
+						LOG.error(e);
 						response = "Sorry, we have problems in finding disks by Text";
 					}
 				
 				} else {
+					LOG.info("incorrect request");
 					response = "Sorry, incorrect request";
 				}
 			}
 		}
 		}else {
-		response = "Sorry, incorrect request";
+			LOG.info("incorrect request");
+			response = "Sorry, incorrect request";
 	}
 		return response;
 	}

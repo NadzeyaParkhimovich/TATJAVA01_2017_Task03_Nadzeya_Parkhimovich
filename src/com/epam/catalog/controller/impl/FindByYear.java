@@ -1,10 +1,8 @@
 package com.epam.catalog.controller.impl;
 
-import java.util.ArrayList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.epam.catalog.beans.Book;
-import com.epam.catalog.beans.Disk;
-import com.epam.catalog.beans.Film;
 import com.epam.catalog.controller.Command;
 import com.epam.catalog.service.Service;
 import com.epam.catalog.service.ServiceExeption;
@@ -12,6 +10,8 @@ import com.epam.catalog.service.ServiceFactory;
 
 public class FindByYear implements Command{
 
+	private final static Logger LOG = LogManager.getRootLogger();
+	
 	@Override
 	public String execute(String request) {
 		ServiceFactory sfactory = ServiceFactory.getInstance();
@@ -23,11 +23,9 @@ public class FindByYear implements Command{
 				
 				service = sfactory.getFilmService();
 				try {
-					response = "Year: " + parts[2] + "\nTitle Author Year Text Genre\n";
-					for(Film film : (ArrayList<Film>)service.findByYear(parts[2])) {
-						response += film.getTitle() + " " + film.getAuthor() + " " + film.getYear() + " " + film.getText() + " " + film.getGenre() + "\n";
-					}
+					response = Util.responseCreator(service.findByYear(parts[2]), "Year", parts[2]);
 				} catch (ServiceExeption e) {
+					LOG.error(e);
 					response = "Sorry, we have problems in finding films by Year";
 				}
 			} else {
@@ -35,11 +33,9 @@ public class FindByYear implements Command{
 					
 					service = sfactory.getBookSerice();
 					try {
-						response = "Year: " + parts[2] + "\nTitle Author Year Text Genre NumberOfPages\n";
-						for(Book book : (ArrayList<Book>)service.findByYear(parts[2])) {
-							response += book.getTitle() + " " + book.getAuthor() + " " + book.getYear() + " " + book.getText() + " " + book.getGenre() + " " + book.getNumberOfPages() + "\n";
-						}
+						response = Util.responseCreator(service.findByYear(parts[2]), "Year", parts[2]);
 					} catch (ServiceExeption e) {
+						LOG.error(e);
 						response = "Sorry, we have problems in finding books by Year";
 					}
 				} else {
@@ -47,21 +43,21 @@ public class FindByYear implements Command{
 					
 					service = sfactory.getDiskService();
 					try {
-						response = "Year: " + parts[2] + "\nTitle Author Year Text Genre\n";
-						for(Disk disk : (ArrayList<Disk>)service.findByYear(parts[2])) {
-							response += disk.getTitle() + " " + disk.getAuthor() + " " + disk.getYear() + " " + disk.getText() + " " + disk.getGenre() + "\n";
-						}
+						response = Util.responseCreator(service.findByYear(parts[2]), "Year", parts[2]);
 					} catch (ServiceExeption e) {
+						LOG.error(e);
 						response = "Sorry, we have problems in finding disks by Year";
 					}
 				
 				} else {
+					LOG.info("incorrect request");
 					response = "Sorry, incorrect request";
 				}
 			}
 		}
 		}else {
-		response = "Sorry, incorrect request";
+			LOG.info("incorrect request");
+			response = "Sorry, incorrect request";
 	}
 		return response;
 	}

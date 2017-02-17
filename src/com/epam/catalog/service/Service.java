@@ -2,8 +2,7 @@ package com.epam.catalog.service;
 
 import java.util.ArrayList;
 
-import com.epam.catalog.beans.News;
-import com.epam.catalog.dao.DAOException;
+import com.epam.catalog.bean.News;
 
 public interface Service {
 	

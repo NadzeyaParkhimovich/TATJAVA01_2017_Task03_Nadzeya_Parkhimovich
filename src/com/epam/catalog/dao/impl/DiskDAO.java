@@ -1,132 +1,126 @@
 package com.epam.catalog.dao.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import com.epam.catalog.beans.Disk;
-import com.epam.catalog.beans.MusicGenre;
-import com.epam.catalog.beans.News;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.epam.catalog.bean.Disk;
+import com.epam.catalog.bean.News;
+import com.epam.catalog.bean.genre.MusicGenre;
 import com.epam.catalog.dao.DAOException;
 import com.epam.catalog.dao.NewsDAO;
 
 public class DiskDAO implements NewsDAO{
-		
-	DBWorker db = DBWorker.getInstance();
-	ArrayList<Disk> disks = new ArrayList<Disk>();
-	ResultSet result;
 	
-	public ArrayList<Disk> findAll() throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk`");
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
-				disks.add(disk);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return disks;
-	}
+	private static final Logger LOG = LogManager.getRootLogger();
+	private static final String DISK_FILE ="D:/Projects/Catalog/Disk.txt";
 	
-	public ArrayList<Disk> findByTitle(String title) throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk` WHERE `title`=\"" + title +"\"");
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
+	@Override
+	public ArrayList<? extends News> findAll() throws DAOException {
+		FileReader reader = null;
+        BufferedReader br = null;
+        ArrayList<Disk> disks = new ArrayList<Disk>();
+        
+        try {
+			reader = new FileReader(DISK_FILE);
+			br = new BufferedReader(reader);
+			String s;
+			String [] parts;
+			Disk disk;
+			while ((s = br.readLine()) != null) {
+				parts = s.split("@");
+				disk = new Disk(parts[0],parts[1],Integer.parseInt(parts[2]),parts[3],MusicGenre.valueOf(parts[4]));
 				disks.add(disk);
+				
 			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
 			throw new DAOException(e);
+		} finally {
+			try {
+				reader.close();
+				br.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
 		}
-		
 		return disks;
 	}
 
-	public ArrayList<Disk> findByAuthor(String author) throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk` WHERE `author`=\"" + author + "\"");
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
-				disks.add(disk);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return disks;
-	}
-	
-	public ArrayList<Disk> findByYear(int year) throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk` WHERE `year`=" + year);
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
-				disks.add(disk);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return disks;
-	}
-	
-	public ArrayList<Disk> findByText(String text) throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk` WHERE `text`=\"" + text + "\"");
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
-				disks.add(disk);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return disks;
-	}
-	
-	public ArrayList<Disk> findByGenre(String genre) throws DAOException {
-		disks.clear();
-		try {
-			result = db.getDBData("SELECT * FROM `disk` WHERE `genre`=\"" + genre + "\"");
-			while (result.next()) {
-				Disk disk = new Disk(result.getString("title"),result.getString("author"),result.getInt("year"),
-						result.getString("text"),MusicGenre.valueOf(result.getString("genre")));
-				disks.add(disk);
-			}
-		} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			throw new DAOException(e);
-		}
-		
-		return disks;
-	}
-	
-	public void addNews(News news) throws DAOException {
-		if (news instanceof Disk) {
-			Disk disk = (Disk)news;
-			String query = "INSERT INTO `disk` (`title`,`author`,`year`,`text`,`genre`) "
-					+ "VALUES (\"" + disk.getTitle() + "\",\"" + disk.getAuthor() + "\","
-					+ disk.getYear() + ",\"" + disk.getText() + "\",\"" + disk.getGenre() + "\")";
-			try {
-				if(db.changeDBData(query) != 1) {
-					throw new DAOException("Problem in insert file");
+	@Override
+	public ArrayList<? extends News> findBy(String type, String value) throws DAOException {
+		FileReader reader = null;
+        BufferedReader br = null;
+        ArrayList<Disk> disks = new ArrayList<Disk>();
+        
+        try {
+        	reader = new FileReader(DISK_FILE);
+			br = new BufferedReader(reader);
+			String s;
+			String [] parts;
+			Disk disk;
+			int i = Type.numberOfEnum(type);
+			while ((s = br.readLine()) != null) {
+				parts = s.split("@");
+				if (parts[i].equalsIgnoreCase(value)) {
+					disk = new Disk(parts[0],parts[1],Integer.parseInt(parts[2]),parts[3],MusicGenre.valueOf(parts[4]));
+					disks.add(disk);
 				}
-			} catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				throw new DAOException(e);
 			}
-		} else {
+			
+        }catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
+			throw new DAOException(e);
+		} finally {
+			try {
+				reader.close();
+				br.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
+		}
+		return disks;
+	}
+
+	@Override
+	public void addNews(News news) throws DAOException {
+		
+		if (!(news instanceof Disk)) {
+			LOG.error("Incorrect type of news");
 			throw new DAOException("Incorrect type of news");
 		}
 		
+		Disk disk = (Disk) news;
+		FileWriter writer = null;
+		
+        try {
+            writer = new FileWriter(DISK_FILE, true);
+            writer.write(disk.getTitle()+"@"+disk.getAuthor()+"@"+disk.getYear()+"@"+disk.getText()+"@"+disk.getGenre());
+            writer.append("\r\n");
+        } catch (FileNotFoundException e) {
+			LOG.error(e);
+			throw new DAOException("Book file is not found", e);
+		} catch (IOException e) {
+			LOG.error(e);
+			throw new DAOException(e);
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				LOG.error(e);
+			}
+		}
 	}
 }

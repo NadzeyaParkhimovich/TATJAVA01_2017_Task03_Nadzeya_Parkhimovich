@@ -1,10 +1,8 @@
 package com.epam.catalog.controller.impl;
 
-import java.util.ArrayList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.epam.catalog.beans.Book;
-import com.epam.catalog.beans.Disk;
-import com.epam.catalog.beans.Film;
 import com.epam.catalog.controller.Command;
 import com.epam.catalog.service.Service;
 import com.epam.catalog.service.ServiceExeption;
@@ -12,8 +10,11 @@ import com.epam.catalog.service.ServiceFactory;
 
 public class FindAll implements Command{
 
+	private final static Logger LOG = LogManager.getRootLogger();
+	
 	@Override
 	public String execute(String request) {
+		
 		ServiceFactory sfactory = ServiceFactory.getInstance();
 		Service service;
 		String parts[] = request.split("@");
@@ -24,12 +25,10 @@ public class FindAll implements Command{
 				
 				service = sfactory.getFilmService();
 				try {
-					response = "Title Author Year Text Genre\n";
-					for(Film film : (ArrayList<Film>)service.findAll()) {
-						response += film.getTitle() + " " + film.getAuthor() + " " + film.getYear() + " " + film.getText() + " " + film.getGenre() + "\n";
-					}
-				} catch (ServiceExeption e) {
+					response = Util.responseCreator(service.findAll(), "All", "films");
 					
+				} catch (ServiceExeption e) {
+					LOG.error(e);
 					response = "Sorry, we have problems in finding films";
 				}
 			} else {
@@ -37,12 +36,9 @@ public class FindAll implements Command{
 					
 					service = sfactory.getBookSerice();
 					try {
-						response = "Title Author Year Text Genre NumberOfPages\n";
-						for(Book book : (ArrayList<Book>)service.findAll()) {
-							response += book.getTitle() + " " + book.getAuthor() + " " + book.getYear() + " " + book.getText() + " " + book.getGenre() + " " + book.getNumberOfPages() + "\n";
-						}
+						response = Util.responseCreator(service.findAll(), "All", "books");
 					} catch (ServiceExeption e) {
-						
+						LOG.error(e);
 						response = "Sorry, we have problems in finding books";
 					}
 				} else {
@@ -50,20 +46,19 @@ public class FindAll implements Command{
 						
 						service = sfactory.getDiskService();
 						try {
-							response = "Title Author Year Text Genre\n";
-							for(Disk disk : (ArrayList<Disk>)service.findAll()) {
-								response += disk.getTitle() + " " + disk.getAuthor() + " " + disk.getYear() + " " + disk.getText() + " " + disk.getGenre() + "\n";
-							}
+							response = Util.responseCreator(service.findAll(), "All", "disks");
 						} catch (ServiceExeption e) {
-							
+							LOG.error(e);
 							response = "Sorry, we have problems in finding disks";
 						}
 					} else {
+						LOG.info("incorrect request");
 						response = "Sorry, incorrect request";
 					}
 				}
 			}
 		} else {
+			LOG.info("incorrect request");
 			response = "Sorry, incorrect request";
 		}
 		 
